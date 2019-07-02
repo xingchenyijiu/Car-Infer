@@ -129,7 +129,7 @@ def clip_bbox(bbox):
     return xmin, ymin, xmax, ymax
 
 
-if __name__ == '__main__':
+def getF():
 	#模型加载
     args = parser.parse_args()
     print_arguments(args)
@@ -152,13 +152,4 @@ if __name__ == '__main__':
         data_args=data_args,
         image_path=args.image_path,
         model_dir=args.model_dir)
-    #f是一个函数，需要传入图片路径，它返回五个列表，分别对应xmin,ymin,xmax,ymax,label
-    
-    #以下为调试代码
-    while True:
-        image_path=input('input the path of image\n')
-        if image_path in 'quitexit':
-            break
-        a,b,c,d,e=f(image_path)
-        for i in range(len(a)):
-            print(a[i],b[i],c[i],d[i],e[i])
+    return f
