@@ -1,4 +1,2 @@
 import infer1
-f=infer1.getF()
-for i in range(8):
-   	f(str(i+1)+'.jpg')
+infer1.getF()('4.jpg')

@@ -263,6 +263,7 @@ def infer(settings, image_path):
         img = img.astype('float32')
         img -= settings.img_mean
         img = img * 0.007843
+        print(img[0,0,0:50])
         return img
 
     return reader
