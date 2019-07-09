@@ -21,7 +21,11 @@ add_arg('use_gpu',          bool,  False,      "Whether use GPU.")
 add_arg('image_path',       str,   '',        "The image used to inference and visualize.")
 add_arg('model_dir',        str,   './model/best_model',     "The model path.")
 add_arg('nms_threshold',    float, 0.45,   "NMS threshold.")
+<<<<<<< HEAD
 add_arg('confs_threshold',  float, 0.5,    "Confidence threshold to draw bbox.")
+=======
+add_arg('confs_threshold',  float, 0.6,    "Confidence threshold to draw bbox.")
+>>>>>>> 5f6f5276f9eadb0376dbcd89e81d6a71d8ef2414
 add_arg('resize_h',         int,   300,    "The resized image height.")
 add_arg('resize_w',         int,   300,    "The resized image height.")
 add_arg('mean_value_B',     float, 127.5,  "Mean value for B channel which will be subtracted.")  #123.68
@@ -80,10 +84,13 @@ def infer(args, data_args, model_dir):
 def getList(image, nms_out, confs_threshold, label_list):
     im_width, im_height=image.size
     rxmin,rymin,rxmax,rymax,rlabel=[],[],[],[],[]
-
+    x,y=0,0
     for dt in nms_out:
+        x+=1
+       # print(dt) 		
         if dt[1]<confs_threshold:
             continue
+        y+=1
         rlabel.append(label_list[int(dt[0])])
         
         xmin,ymin,xmax,ymax=clip_bbox(dt[2:])
@@ -91,6 +98,7 @@ def getList(image, nms_out, confs_threshold, label_list):
         rymin.append(ymin*im_height)
         rxmax.append(xmax*im_width)
         rymax.append(ymax*im_height)
+    #print(x,y)
     return rxmin,rymin,rxmax,rymax,rlabel
 
 
