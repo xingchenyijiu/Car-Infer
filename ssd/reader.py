@@ -242,12 +242,9 @@ def test(settings, file_list, batch_size):
     return Mydata(settings, image_list, 'test', batch_size, False)
 
 
-def infer(settings, image_path):
+def infer(settings, image):
     def reader():
-        if not os.path.exists(image_path):
-            raise ValueError("%s is not exist, you should specify "
-                             "data path correctly." % image_path)
-        img = Image.open(image_path)
+        img = copy.deepcopy(image)
         if img.mode == 'L':
             img = img.convert('RGB')
         im_width, im_height = img.size

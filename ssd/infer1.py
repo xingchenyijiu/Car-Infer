@@ -20,8 +20,8 @@ add_arg('dataset',          str,   'Mydata',    "coco and pascalvoc.")
 add_arg('use_gpu',          bool,  False,      "Whether use GPU.")
 add_arg('image_path',       str,   '',        "The image used to inference and visualize.")
 add_arg('model_dir',        str,   './model/best_model',     "The model path.")
-add_arg('nms_threshold',    float, 0.5,   "NMS threshold.")
-add_arg('confs_threshold',  float, 0.6,    "Confidence threshold to draw bbox.")
+add_arg('nms_threshold',    float, 0.45,   "NMS threshold.")
+add_arg('confs_threshold',  float, 0.5,    "Confidence threshold to draw bbox.")
 add_arg('resize_h',         int,   300,    "The resized image height.")
 add_arg('resize_w',         int,   300,    "The resized image height.")
 add_arg('mean_value_B',     float, 127.5,  "Mean value for B channel which will be subtracted.")  #123.68
@@ -30,7 +30,7 @@ add_arg('mean_value_R',     float, 127.5,  "Mean value for R channel which will 
 # yapf: enable
 
 
-def infer(args, data_args, image_path, model_dir):
+def infer(args, data_args, model_dir):
     image_shape = [3, data_args.resize_h, data_args.resize_w]
     num_classes = 7
     label_list = data_args.label_list
@@ -57,7 +57,7 @@ def infer(args, data_args, image_path, model_dir):
     # switch network to test mode (i.e. batch norm test mode)
     test_program = fluid.default_main_program().clone(for_test=True)
     #print('################')
-    def work(image_path):
+    def work(img):
         #nonlocal reader
         nonlocal feeder
         nonlocal test_program
@@ -67,18 +67,17 @@ def infer(args, data_args, image_path, model_dir):
         nonlocal args
         nonlocal label_list
 
-        data=reader.infer(data_args,image_path)()
+        data=reader.infer(data_args,img)()
         nmsed_out_v, = exe.run(test_program,
                                feed=feeder.feed([[data]]),
                                fetch_list=[nmsed_out],
                                return_numpy=False)
         nmsed_out_v = np.array(nmsed_out_v)
-       # draw_bounding_box_on_image(image_path, nmsed_out_v, args.confs_threshold, label_list)
-        return getList(image_path, nmsed_out_v,args.confs_threshold, label_list)
+       # draw_bounding_box_on_image(img, nmsed_out_v, args.confs_threshold, label_list)
+        return getList(img, nmsed_out_v,args.confs_threshold, label_list)
     return work
 
-def getList(image_path, nms_out, confs_threshold, label_list):
-    image=Image.open(image_path)
+def getList(image, nms_out, confs_threshold, label_list):
     im_width, im_height=image.size
     rxmin,rymin,rxmax,rymax,rlabel=[],[],[],[],[]
 
@@ -95,9 +94,8 @@ def getList(image_path, nms_out, confs_threshold, label_list):
     return rxmin,rymin,rxmax,rymax,rlabel
 
 
-def draw_bounding_box_on_image(image_path, nms_out, confs_threshold,
+def draw_bounding_box_on_image(image, nms_out, confs_threshold,
                                label_list):
-    image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
     im_width, im_height = image.size
 
@@ -116,9 +114,10 @@ def draw_bounding_box_on_image(image_path, nms_out, confs_threshold,
             fill='green')
         if image.mode == 'RGB':
             draw.text((left, top), label_list[int(category_id)], (0, 255, 0))
-    image_name = "images/" + image_path.split('/')[-1]
+    image_name = "images/19.jpg" 
     print("image with bbox drawed saved as {}".format(image_name))
     image.save(image_name)
+    print('-----')
 
 
 def clip_bbox(bbox):
@@ -150,6 +149,5 @@ def getF():
     f=infer(
         args,
         data_args=data_args,
-        image_path=args.image_path,
         model_dir=args.model_dir)
     return f
